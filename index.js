@@ -6,13 +6,14 @@ const db=require('./config/mongoose');
 const flash=require('connect-flash');
 const session=require('express-session');
 const passport=require('passport');
+const MongoStore=require('connect-mongo')(session);
 
 //import pages
 require('./config/passport_local')(passport);
 
 //define variables  and functions
 const app=express();
-const port=process.env.PORT||2200;
+const port=process.env.PORT||2000;
 
 //setting up layouts
 app.set('layout extractStyles',true);
@@ -27,12 +28,25 @@ app.use(session({
     //Todo cahnge the secret before deployment in production mode
     secret:"blahblah",
     saveUninitialized:false,
-    resave:false
+    resave:false,
+    cookie:{
+        maxAge:(1000*60*100)
+    },
+    store:new MongoStore({
+        
+        mongooseConnection:db,
+        autoRemove:'disabled'
+    
+},function(err)
+{
+    console.log(err || "connect-mongodb setup store")
+})
 }))
 //Passport middleware
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(passport.setAuthenticatedUser);
 
 //connect flash
 app.use(flash());

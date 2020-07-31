@@ -1,5 +1,7 @@
 const User=require('../models/user')
 const bcrypt=require('bcryptjs')
+const passport=require('passport');
+
 module.exports.loginPage=(req,res)=>{
     return res.render('login')
 }
@@ -87,4 +89,20 @@ module.exports.register=(req,res)=>{
                 })
             }
         })
+}
+
+
+module.exports.login=(req,res,next)=>{
+    passport.authenticate('local',{
+        successRedirect:'/dashboard',
+        failureRedirect:'/users/login',
+        failureFlash:true
+    })(req,res,next);
+}
+
+module.exports.logout=function(req,res)
+{
+    req.logout();
+    req.flash('success_msg','You are logged out')
+    return res.redirect('/users/login')
 }
